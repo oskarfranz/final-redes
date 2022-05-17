@@ -5,7 +5,7 @@ key = Fernet.generate_key()
 def cifrar(key):
 
 
-    with open('filekey.key', 'wb') as filekey: 
+    with open('filekey.key', 'wb')  as filekey: 
         filekey.write(key)
         
     with open('filekey.key', 'rb') as filekey: 

@@ -2,26 +2,6 @@ import nacl.utils
 import socket
 from cryptography.fernet import Fernet
 
-server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-server.bind((socket.gethostname(), 80))
-server.listen(10)
-# print(random)
-
-while 1:
-    client, address = server.accept()
-    if(client):
-        print("Conectado al cliente.")
-        toEncode = server.recv(128).decode("utf-8")
-        cifrar(key, toEncode);
-        server.send(toEncode.encode("utf-8"))
-        # client.send(random.encode())
-    else:
-        print("Intentando conectar con el cliente...")
-
-
-key = Fernet.generate_key() 
-
 def cifrar(key, toEncode):
 
 
@@ -31,8 +11,8 @@ def cifrar(key, toEncode):
     with open('filekey.key', 'rb') as filekey: 
         key = filekey.read() 
     
-    with open('doc.txt', 'wb') as originalFile: 
-        originalFile.write(toEncode) 
+    # with open('doc.txt', 'wb') as originalFile: 
+    #     originalFile.write(toEncode.encode()) 
 
     fernet = Fernet(key) 
 
@@ -40,9 +20,36 @@ def cifrar(key, toEncode):
         original = file.read() 
         
         encrypted = fernet.encrypt(original) 
+        return encrypted
 
-    with open('doc.txt', 'wb') as encrypted_file: 
-        encrypted_file.write(encrypted) 
+
+
+
+server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+server.bind((socket.gethostname(), 80))
+server.listen(10)
+# print(random)
+key = Fernet.generate_key() 
+
+while 1:
+    client, address = server.accept()
+    if(client):
+        print("Conectado al cliente.")
+        toEncode = client.recv(1024).decode("utf-8")
+        print("Recieved file with content: ", toEncode)
+        encrypted = cifrar(key, toEncode);
+        print("Content is now encrypted")
+        print("Sending encrypted file to client...")
+        client.send(encrypted)
+        print("Encrypted file successfully sent to the client!")
+
+        # client.send(random.encode())
+    else:
+        print("Intentando conectar con el cliente...")
+
+
+
 
 
 def descifrar(key):  
